@@ -1,0 +1,86 @@
+import asc
+
+asc.setSize(4) # размер n-грамм
+asc.setAlmV2()
+asc.setThreads(0) # все ядра
+asc.setLocale("en_US.UTF-8")
+
+# настройка возможностей спеллчекера
+
+# добавляем возможность исправлять регистр слов
+asc.setOption(asc.options_t.uppers) 
+
+# работа с токенами
+asc.setOption(asc.options_t.allowUnk)
+asc.setOption(asc.options_t.resetUnk)
+
+# исправление слов с  буквами из других языков
+asc.setOption(asc.options_t.mixDicts)
+asc.setOption(asc.options_t.tokenWords)
+# загружаем данные из arpa без изменений
+asc.setOption(asc.options_t.confidence)
+asc.setOption(asc.options_t.interpolate)
+
+asc.setAlphabet("абвгдеёжзийклмнопрстуфхцчшщъыьэюяabcdefghijklmnopqrstuvwxyz")
+
+# указываем слова, которые состоят из одной буквы
+asc.setPilots(["а","у","в","о","с","к","б","и","я","э","a","i","o","e","g"])
+
+# указываем похожие символы в английском и русском
+asc.setSubstitutes({'p':'р','c':'с','o':'о','t':'т','k':'к','e':'е','a':'а','h':'н','x':'х','b':'в','m':'м'})
+
+def statusArpa1(status):
+    print("Build arpa", status)
+
+def statusArpa2(status):
+    print("Write arpa", status)
+
+def statusVocab(status):
+    print("Write vocab", status)
+
+def statusIndex(text, status):
+    print(text, status)
+
+def status(text, status):
+    print(text, status)
+
+asc.collectCorpus("./true.txt", asc.smoothing_t.wittenBell, 0.0, False, False, status)
+#выполняем загрузку словарей
+asc.buildArpa(statusArpa1)
+
+asc.writeArpa("./lm.arpa", statusArpa2)
+
+asc.writeVocab("./lm.vocab", statusVocab)
+
+# альтернативная буква
+asc.addAlt("е", "ё")
+
+#необходимые условные настройки для словаря
+asc.setCode("RU")
+asc.setLictype("MIT")
+asc.setName("Russian")
+asc.setAuthor("Tanya")
+asc.setCopyright("dd")
+asc.setLictext("lic")
+asc.setContacts("ff")
+
+# параметры внутреннего эмбеддинга
+asc.setEmbedding({
+     "а": 0, "б": 1, "в": 2, "г": 3, "д": 4, "е": 5,
+     "ё": 5, "ж": 6, "з": 7, "и": 8, "й": 8, "к": 9,
+     "л": 10, "м": 11, "н": 12, "о": 0, "п": 13, "р": 14,
+     "с": 15, "т": 16, "у": 17, "ф": 18, "х": 19, "ц": 20,
+     "ч": 21, "ш": 21, "щ": 21, "ъ": 22, "ы": 23, "ь": 22,
+     "э": 5, "ю": 24, "я": 25, "<": 26, ">": 26, "~": 26,
+     "-": 26, "+": 26, "=": 26, "*": 26, "/": 26, ":": 26,
+     "%": 26, "|": 26, "^": 26, "&": 26, "#": 26, "'": 26,
+     "\\": 26, "0": 27, "1": 27, "2": 27, "3": 27, "4": 27,
+     "5": 27, "6": 27, "7": 27, "8": 27, "9": 27, "a": 0,
+     "b": 2, "c": 15, "d": 4, "e": 5, "f": 18, "g": 3,
+     "h": 12, "i": 8, "j": 6, "k": 9, "l": 10, "m": 11,
+     "n": 12, "o": 0, "p": 14, "q": 13, "r": 14, "s": 15,
+     "t": 16, "u": 24, "v": 21, "w": 22, "x": 19, "y": 17, "z": 7
+}, 28)
+
+# сохраняем индекс бинарного словаря
+asc.saveIndex("./ascind.asc", "", 128, statusIndex)
